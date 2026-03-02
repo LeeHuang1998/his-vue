@@ -1,0 +1,476 @@
+@import url('../style.less');
+
+.goods-detail {
+    width: 1600px;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    padding: 30px 10px 30px 10px;
+    background-color: #fff;
+
+    .cover {
+        width: 450px;
+        height: 450px;
+        /* 确保轮播容器完全应用尺寸 */
+        overflow: hidden;
+
+        /* el-carousel-item 也占满 */
+        .cover .el-carousel__container,
+        .cover .el-carousel__item {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 让图片真正铺满并居中裁切 */
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* 或 contain，看需求 */
+        }
+    }
+
+    .property {
+        height: 450px;
+        margin-left: 50px;
+
+        .title {
+            font-size: 30px;
+            color: @fc-1;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .desc {
+            font-size: 14px;
+            color: @fc-3;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        .row {
+            display: flex;
+            margin-bottom: 20px;
+
+            .label {
+                width: 80px;
+                font-size: 14px;
+                color: @fc-1;
+            }
+
+            .goods-info {
+                font-size: 14px;
+                color: @fc-1;
+                display: flex;
+
+                .current-price {
+                    font-size: 30px;
+                    color: @fc-23;
+                    margin-top: -12px;
+
+                    &::before {
+                        content: '￥';
+                        font-size: 22px;
+                    }
+                }
+
+                .initial-price {
+                    font-size: 15px;
+                    color: @fc-3;
+                    text-decoration: line-through; // 删除线，从元素中间穿过
+                    margin-left: 10px;
+                }
+
+                .discount-image {
+                    width: 32px;
+                    height: auto;
+                    margin-right: 5px;
+                }
+
+                .discount {
+                    color: @fc-23;
+                }
+
+                .property-icon {
+                    width: 20px;
+                    height: 20px;
+                    margin-right: 3px;
+                }
+
+                .service-tag {
+                    margin-right: 20px;
+                }
+            }
+        }
+
+        .operate {
+            display: flex;
+            margin-top: 45px;
+
+            .consult-btn {
+                width: 130px;
+                height: 43px;
+                border: 1px solid @bc-20;
+                border-radius: 3px;
+                display: flex;
+                justify-content: center; // 主轴（X 轴）居中
+                align-items: center; // 交叉轴（Y 轴）居中
+                cursor: pointer;
+                user-select: none; // 禁止用户选中文本
+
+                &:active {
+                    background-color: #fff7fb;
+                }
+
+                img {
+                    width: 20px;
+                    height: 20px;
+                    margin-right: 5px;
+                }
+
+                span {
+                    color: @fc-23;
+                    font-size: 14px;
+                }
+            }
+
+            .pay-btn {
+                width: 130px;
+                height: 43px;
+                border: 1px solid @bc-20;
+                border-radius: 3px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                user-select: none;
+                font-size: 14px;
+                background-color: @btnc-10;
+                color: #fff;
+                margin-left: 20px;
+
+                &:active {
+                    background-color: @btnac-10;
+                }
+            }
+        }
+    }
+}
+
+.dividing-line {
+    width: 1600px;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    border-bottom: 1px solid @bc-1;
+
+}
+
+.container {
+    width: 1600px;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #fff;
+    padding: 50px 10px 50px 10px;
+}
+
+.goods-content {
+    width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+
+
+
+    .tag {
+        border-right: 1px solid @bc-1;
+        padding-right: 10px;
+        margin-right: 10px;
+
+        &:last-of-type {
+            border-right: none;
+            padding-right: 0;
+            margin-right: 0;
+        }
+    }
+
+    .detail {
+        margin-top: 50px;
+    }
+}
+
+.checkup-appointment {
+    width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+
+}
+
+fieldset {
+    border-top: 1px solid @bc-1;
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
+    margin: 0;
+    padding: 0;
+
+    legend {
+        font-size: 30px;
+        color: #fff;
+        background-color: @bgc-22;
+        border-radius: 35px;
+        height: 70px;
+        text-align: center;
+        line-height: 70px;
+        padding: 0 50px;
+        margin: 30px auto 50px auto;
+    }
+
+    .detail-title {
+        color: @fc-26;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    .detail-table {
+        width: 100%;
+        border: 1px solid @bc-22;
+        border-collapse: collapse; // 合并边框
+        border-spacing: 0; // 设置单元格和单元格之间的间距
+        margin-bottom: 10px;
+
+        th {
+            width: 200px;
+            font-size: 14px;
+            line-height: 1.7;
+            padding: 12px 15px;
+            font-weight: normal; // 表格中默认加粗，设置为 normal 不要加粗
+            color: @fc-25;
+            border: 1px solid @bc-22;
+            background-color: @bgc-31;
+        }
+
+        td {
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.7;
+            color: @fc-26;
+            padding: 12px 15px;
+            border: 1px solid @bc-22;
+        }
+    }
+
+    .descriptions {
+        width: 1100px;
+        margin-bottom: 35px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .content {
+        width: 1500px;
+        display: flex;
+        margin-bottom: 60px;
+
+        .advantage {
+            width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+
+            .card {
+                display: flex;
+                margin-bottom: 25px;
+
+                &:first-child {
+                    margin-top: 10px;
+                }
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .left {
+                    width: 150px;
+                    height: 80px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-grow: 0;
+                    flex-shrink: 0;
+                    background-color: @bgc-30;
+                    border-top-left-radius: 40px;
+                    border-bottom-left-radius: 40px;
+
+                    span {
+                        display: block;
+                        width: 70px;
+                        font-size: 16px;
+                        color: #fff;
+                        text-align: center;
+                        padding-left: 15px;
+                        line-height: 1.5;
+                    }
+                }
+
+                .right {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-grow: 1;
+                    background-color: @bgc-29;
+                    margin-right: 30px;
+
+                    span {
+                        width: 94%;
+                        display: block;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        color: @fc-2;
+                    }
+
+                }
+
+            }
+        }
+
+        .timeline {
+            padding-top: 10px;
+            margin-right: 140px;
+
+            ul {
+                list-style: none;
+                padding: 0 0 0 30px;
+                margin: 0;
+
+                li {
+                    display: flex;
+
+                    .list-img {
+                        width: 10px;
+                        height: 98px;
+                    }
+
+                    .list-line {
+                        width: 44px;
+                        border-top: 3px solid @bc-21;
+                        margin-top: 44px;
+                    }
+
+                    .list-tag {
+                        display: flex;
+                        position: relative;
+
+                        img {
+                            width: 68px;
+                            height: 48px;
+                            margin-top: 22px;
+                        }
+
+                        span {
+                            position: absolute;
+                            margin-left: 20px;
+                            margin-top: 33px;
+                            font-size: 20px;
+                            color: #fff;
+                            font-weight: bold;
+                        }
+                    }
+
+                    .list-content {
+                        margin-left: 10px;
+
+                        h4 {
+                            font-size: 20px;
+                            font-weight: bold;
+                            color: @fc-2;
+                        }
+
+                        p {
+                            margin-top: -24px;
+                            font-size: 18px;
+                            color: @fc-2
+                        }
+                    }
+                }
+            }
+        }
+
+        .look-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            margin-right: auto;
+            margin-left: auto;
+
+            .item {
+                display: flex;
+                margin-top: 20px;
+
+                .left {
+                    width: 122px;
+                    height: 106px;
+                    background-image: url('../../assets/front/goods/polygon.png');
+                    background-size: 122px 106px;
+                    text-align: center;
+                    line-height: 106px;
+                    font-size: 22px;
+                    color: @fc-24;
+                }
+
+                .right {
+                    margin-left: 20px;
+
+                    ul {
+                        margin: 0;
+                        padding: 0;
+                        list-style: none;
+
+                        li {
+                            font-size: 18px;
+                            color: @fc-2;
+                            display: flex;
+                            margin-bottom: 18px;
+
+                            &:last-of-type {
+                                margin-bottom: 0;
+                            }
+
+                            &::before {
+                                display: block;
+                                content: '';
+                                width: 24px;
+                                height: 24px;
+                                background-image: url('../../assets/front/goods/tick.png');
+                                background-size: 24px;
+                                margin-right: 10px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.qrcode {
+    width: 230px;
+    height: 230px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+.pay-success {
+    width: 230px;
+    height: 230px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.dialog-footer-style {
+    padding-bottom: 30px;
+    padding-top: 10px;
+    text-align: center;
+}

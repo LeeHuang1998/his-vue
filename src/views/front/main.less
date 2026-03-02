@@ -1,0 +1,618 @@
+// 引入公共样式
+@import url(../style.less);
+
+.top-nav {
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+    margin-bottom: 10px;
+    background-color: #fff;
+}
+
+/* 顶部导航 */
+.top-nav-container {
+    width: 1600px;
+    margin: 0 auto;
+    height: 35px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    line-height: 35px;
+    font-size: 14px;
+}
+
+.top-nav-left span {
+    margin-right: 15px;
+    color: var(--text-light);
+
+}
+
+.top-nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .login-info {
+            font-size: 14px;
+            color: #00408e;
+
+            span:first-child {
+                cursor: text;
+            }
+
+            span {
+                padding: 0px 5px 0px 0px;
+                cursor: pointer;
+            }
+        }
+
+        .login-btn {
+            font-size: 14px;
+            color: #00408e;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+    }
+
+    .hot-line {
+        margin-left: 10px;
+        font-size: 15px;
+        color: #e40065;
+    }
+
+
+}
+
+/* 搜索导航 */
+.container {
+    width: 1600px;
+    padding-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+
+    header {
+        overflow: hidden; // 避免浮动效果造成高度坍塌
+        user-select: none; // 禁止选中文字
+
+        // logo 区域
+        .logo-container {
+            display: flex;
+            float: left;
+            cursor: pointer;
+
+            .logo {
+                width: 80px;
+                height: auto;
+                margin-right: 13px;
+            }
+
+            h3 {
+                font-size: 34px;
+                margin: 3px 0;
+                color: @fc-1;
+            }
+
+            p {
+                font-size: 18px;
+                margin: 0;
+                color: @fc-1;
+            }
+        }
+
+        // 搜索区域
+        .search-container {
+            float: left;
+            margin-top: 5px;
+            margin-left: 180px;
+
+            .keyword-input {
+                width: 700px;
+                height: 42px;
+                min-height: 42px;
+                margin-bottom: 10px;
+                border: 2px solid red;
+                border-radius: 7px;
+                padding: 5px;
+                box-sizing: border-box; // 元素的 width 和 height 包含了 padding 和 border，但不包含 margin
+                display: flex;
+                position: relative;
+
+                .search-box {
+                    width: 620px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-sizing: border-box;
+
+                    /* 去除边框和阴影 */
+                    :deep(.el-input__wrapper) {
+                        height: 30px;
+                        box-sizing: border-box;
+                        font-size: 14px;
+                        color: black !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        background-color: transparent !important;
+                    }
+
+                    :deep(.el-input__inner) {
+                        color: black;
+                    }
+                }
+
+                .search-btn {
+                    width: 80px;
+                    height: 37px;
+                    background-color: red;
+                    border-radius: 7px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: #fff;
+                    position: absolute;
+                    right: 0;
+                    margin-top: -4px;
+                    margin-right: 1px;
+                }
+            }
+
+            .tag {
+                margin-right: 20px;
+                background-color: #fff;
+            }
+        }
+
+        // 操作区域
+        .operate-container {
+            float: right;
+            display: flex;
+
+            .cart-container {
+                width: 150px;
+                height: 50px;
+                border: 1px solid #989898;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: @btnc-10;
+                    transition-duration: 0.4s;
+                    transition-property: all;
+
+                    .cart-icon {
+                        color: #fff;
+                    }
+
+                    span {
+                        color: #fff;
+                    }
+                }
+
+                .cart-icon {
+                    margin-right: 5px;
+                }
+
+                span {
+                    font-size: 20px;
+                    color: @fc-1;
+                }
+            }
+
+            .user-container {}
+
+
+        }
+    }
+}
+
+footer {
+    .aboutus-container {
+        background-color: #f5f5f5;
+        user-select: none;
+
+        .list {
+            width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+
+            .list-item {
+                display: flex;
+                width: 285px;
+                padding: 20px 10px;
+                box-sizing: border-box; // 设置盒模型为 border-box，用于改变元素盒模型的计算方式，让元素的宽度和高度包含边框（border）和内边距（padding），即盒内元素 padiing 不会改变盒的宽高
+
+                img {
+                    width: 58px;
+                    height: 58px;
+                    margin: 10px;
+                    display: block;
+                }
+
+                div {
+                    h3 {
+                        font-size: 20px;
+                        color: @fc-1;
+                        margin: 10px 0 5px 0;
+                    }
+
+                    p {
+                        font-size: 13px;
+                        color: @fc-3;
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .other-container {
+        background-color: @bgc-28;
+        padding: 20px 0 10px 0;
+        user-select: none;
+
+        .list {
+            width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none; // 去除列表默认样式（前面的圆点）
+            display: flex;
+            justify-content: space-between;
+
+            .link-left {
+                margin-top: 30px;
+
+                img {
+                    width: 250px;
+                }
+
+                .tel {
+                    margin: 0;
+                    color: #fff;
+                    font-size: 28px;
+                    margin-left: 20px;
+                }
+            }
+
+            .link-list {
+                margin: 0;
+                padding: 0;
+                list-style: none;
+
+                li:first-child {
+                    // 第一个 li 标签
+                    font-weight: bold;
+                }
+
+                a {
+                    color: #fff;
+                    font-size: 14px;
+                    display: block;
+                    margin-bottom: 10px;
+                }
+
+            }
+
+            .link-right {
+                display: flex;
+
+                .ercode {
+
+                    // & 符号是一个父选择器引用（Parent Selector），它代表当前嵌套层级的父选择器
+                    // 作用：避免重复书写父选择器（.ercode）。用于拼接伪类（如 :hover、:first-child）、伪元素（如 ::before）、属性选择器或 BEM 命名修饰符等场景。
+                    &:first-child {
+                        margin-right: 20px;
+                    }
+
+                    p {
+                        color: #fff;
+                        font-size: 14px;
+                        text-align: center;
+                        margin: 0 0 8px 0;
+                    }
+
+                    img {
+                        width: 110px;
+                        height: 110px;
+                        display: block;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.login-dialog {
+
+    .register-title {
+        display: flex;
+
+        span {
+            margin-right: auto;
+            margin-left: auto;
+            padding-right: 15px;
+            padding-left: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+        }
+    }
+
+    .register-form {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .back-to-login {
+        width: 495px;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 30px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+
+        span {
+            font-size: 16px;
+            color: @fc-22;
+            cursor: pointer;
+        }
+    }
+
+
+
+
+    .login-type {
+        display: flex;
+
+
+        .select-login-type {
+            margin-right: auto;
+            margin-left: auto;
+            margin-bottom: 15px;
+
+
+            span {
+                padding-right: 15px;
+                padding-left: 15px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+                color: black;
+
+                &:first-child {
+                    border-right: 1px solid #e5e8ec;
+                }
+            }
+
+            .red {
+                color: red;
+            }
+        }
+
+    }
+
+    /* 验证结果样式 */
+    .el-form-item {
+        display: flex;
+        height: 60px;
+        position: relative;
+
+        .error-item {
+            color: #ff4d4f;
+            font-size: 14px;
+            margin-left: 37px;
+            margin-top: 90px;
+            position: absolute;
+        }
+    }
+
+    .input-container {
+        display: flex;
+        width: 500px;
+        height: 50px;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 10px;
+        align-items: center;
+        background-color: #F7F8FC;
+        border-radius: 10px;
+
+        /* 两个子控件背景色为透明，当移入时改变背景色 */
+        &:hover {
+            background-color: #E5E8EC;
+        }
+
+        &:focus-within {
+            background-color: #E5E8EC;
+        }
+
+
+        /* el-input */
+        :deep(.el-input) {
+            height: 50px;
+        }
+
+        /* 去除边框和阴影 */
+        :deep(.el-input__wrapper) {
+            font-size: 16px;
+            color: black !important;
+            border: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+
+        /* 设置字体颜色和背景色 */
+        :deep(.el-input__inner) {
+            height: 40px;
+            color: black;
+            background-color: transparent !important;
+        }
+
+        /* el-select 样式 */
+        :deep(.el-select) {
+            width: 80px;
+            margin-right: 10px;
+        }
+
+        /* 内部框 */
+        :deep(.el-select__wrapper) {
+            width: 100px;
+            height: 50px;
+            font-size: 14px;
+            color: black !important;
+            border: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+
+        /* 下拉箭头 */
+        :deep(.el-select__icon) {
+            margin-left: -25px;
+        }
+
+        /* 获取验证码按钮 */
+        .code-btn {
+            font-size: 16px;
+            margin-right: 15px;
+        }
+    }
+
+    .account-operation {
+        width: 495px;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 25px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .register {
+            font-size: 16px;
+            color: @fc-22;
+            cursor: pointer;
+        }
+
+        .forget-password {
+            font-size: 16px;
+            color: @fc-10;
+            cursor: pointer;
+        }
+    }
+
+    .login-btn-container {
+        display: flex;
+        margin-top: -5px;
+
+        .login-btn {
+            width: 500px;
+            height: 45px;
+            margin-right: auto;
+            margin-left: auto;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+        }
+    }
+
+    .social-login {
+        margin-top: 25px;
+        text-align: center;
+    }
+
+    .social-login p {
+        color: #166bd9ad;
+        ;
+        font-size: 14px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .social-login p::before,
+    .social-login p::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 35%;
+        height: 1px;
+        background: #eee;
+    }
+
+    .social-login p::before {
+        left: 0;
+    }
+
+    .social-login p::after {
+        right: 0;
+    }
+
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .social-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .social-icon:hover {
+        transform: translateY(-3px);
+    }
+
+    .wechat {
+        // background: #2aae67;
+        background-image: url(../../assets/login/wechat.svg);
+        /* 控制图片大小 */
+        background-size: 35px 35px;
+        /* 图片居中 */
+        background-position: center;
+        /* 不重复 */
+        background-repeat: no-repeat;
+    }
+
+    .gitee {
+        // background: #e71f19;
+        background-image: url(../../assets/login/gitee.svg);
+        /* 控制图片大小 */
+        background-size: 35px 35px;
+        /* 图片居中 */
+        background-position: center;
+        /* 不重复 */
+        background-repeat: no-repeat;
+    }
+
+    .github {
+        // background: #1677ff;
+        background-image: url(../../assets/login/github.svg);
+        /* 控制图片大小 */
+        background-size: 35px 35px;
+        /* 图片居中 */
+        background-position: center;
+        /* 不重复 */
+        background-repeat: no-repeat;
+    }
+
+}

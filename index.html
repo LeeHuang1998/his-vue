@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>健康体检系统</title>
+        <!-- 设置公公样式 -->
+        <style>
+            html {
+                height: 100%;
+            }
+
+            body {
+              /* 继承 html 的高度且 margin 为 0 */
+                margin: 0;
+                height: inherit;        /* 继承父元素高度 */
+            }
+
+            * {
+                font-family: "微软雅黑", Helvetica Neue, Georgia, Helvetica Neue, Menlo;
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            #app {
+    		        font-family: Avenir, Helvetica, Arial, sans-serif;
+                /* 设置字体边缘抗锯齿 */
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                /* 继承父元素高度 */
+                height: inherit;      
+            }
+        </style>
+    </head>
+    <body>
+        <!-- index.html 文件是前端的基座页面，App.vue 页面会被编译成 HTML 代码写入到 index.html 文件中 div id=app 的位置 -->
+        <div id="app"></div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>

@@ -1,0 +1,51 @@
+@import url('../style.less');
+
+.im-container {
+    background-color: #F5F5F5;
+
+    .home-TUIKit-main {
+        display: flex;
+        height: 750px;
+        width: 1000px;
+        //避免好友列表超高溢出父控件
+        overflow: hidden;
+        border: solid 1px @bc-4;
+        border-radius: 10px;
+        margin-left: 10px;
+
+        .conversation {
+            min-width: 300px;
+            border-right: 1px solid @bc-4;
+            background-color: @bgc-31;
+        }
+
+        .TUIKit-search {
+            padding-right: 12px !important;
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+        }
+
+        .TUI-conversation {
+            background-color: @bgc-30 !important;
+        }
+
+        .TUIKit-chat {
+            background-color: #fff;
+            flex-grow: 1;
+            height: 100%;
+            //避免点击对话列表之后，UI界面排版错乱
+            padding-left: 12px;
+
+        }
+
+        //避免输入框一直显示垂直滚动条
+        .message-input-area {
+            overflow-y: auto !important;
+        }
+
+        //设置对话框标题文字字体，默认宋体很难看
+        .TUIChat-header h1 {
+            font-family: Helvetica Neue, Helvetica, Arial, Microsoft Yahei, Hiragino Sans GB, Heiti SC, WenQuanYi Micro Hei, sans-serif !important;
+        }
+    }
+}

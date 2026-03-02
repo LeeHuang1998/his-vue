@@ -1,0 +1,70 @@
+@import url('../style.less');
+
+.person-container {
+    display: flex;
+    justify-content: space-between;
+
+    .left {
+        width: 49%;
+
+        .operate {
+            display: flex;
+
+            .uuid {
+                width: 315px;
+                margin-right: 15px;
+            }
+        }
+    }
+
+    .right {
+        width: 49%;
+    }
+
+    .cell-item {
+        display: flex;
+        justify-content: center;
+        padding-right: 15px;
+
+        .icon {
+            margin-top: 5px;
+            margin-right: 5px;
+        }
+    }
+}
+
+.checkup-container {
+    margin-top: 40px;
+
+    table {
+        width: 100%;
+        border-spacing: 0;
+        border: solid 1px @bc-22;
+        border-collapse: collapse;
+
+        th {
+            padding: 15px;
+            border: solid 1px @bc-22;
+            color: @fc-32;
+            background-color: @bgc-31;
+        }
+
+        td {
+            border: solid 1px @bc-22;
+            padding: 15px;
+        }
+
+        .value-container {
+            display: flex;
+
+            .input-value {
+                width: 500px;
+                margin-left: 20px;
+            }
+        }
+    }
+
+    .operate {
+        margin-top: 30px;
+    }
+}
