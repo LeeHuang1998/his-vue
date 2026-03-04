@@ -130,9 +130,13 @@
                         <span>【{{ realTimeQueueDialog.drawerTitle }}】排队名单：</span>
                         <el-button size="small" type="danger" @click="handleDrawerClose">×</el-button>
                     </div>
-                    <!-- TODO 样式修改 -->
-                    <el-button type="success" class="add-queue-btn"
-                        @click="addQueuePersonHandle(realTimeQueueDialog.drawerPlaceId)">添加排队</el-button>
+                    <div class="queue-operation">
+                        <!-- TODO 样式修改 -->
+                        <el-button type="success" class="queue-btn"
+                            @click="addQueuePersonHandle(realTimeQueueDialog.drawerPlaceId)">添 加 排 队</el-button>
+                        <el-button type="warning" class="queue-btn" auto-insert-space
+                            @click="skipQueuePersonHandle(realTimeQueueDialog.drawerPlaceId)">过号</el-button>
+                    </div>
                     <div class="div-line"></div>
                     <div class="drawer-body">
                         <div v-for="person in realTimeQueueDialog.currentQueue" :key="person" class="person-item">
@@ -295,6 +299,42 @@ const addQueuePersonHandle = (id: number) => {
     })
 }
 
+// 移除指定的排队人员
+const skipQueuePersonHandle = (id: number) => {
+    ElMessageBox.prompt('请输入需要过号的体检单编号', '提示信息', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: "体检编号",
+        type: "warning",
+        inputPattern: /^[0-9a-zA-Z]{32}$/,
+        inputErrorMessage: '体检编号不正确',
+    }).then(({ value }) => {
+        ElMessageBox.confirm('确定将该体检人员从排队队列中移除吗？', '提示信息', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        }).then(() => {
+            // 往指定科室中添加排队人员
+            proxy.$http('/mis/flowRegulation/skipQueuePerson/' + id + '/' + value, "GET", null, true, resp => {
+                if (resp.code == 200) {
+                    ElMessage({
+                        message: "操作成功，该排队人员已过号",
+                        type: 'success',
+                        duration: 2000
+                    })
+                    searchRealTimeQueueData()
+                    searchQueueByPlace(id, realTimeQueueDialog.value.drawerTitle)
+                } else {
+                    ElMessage.error({
+                        message: "体检人信息查询错误，" + resp.message,
+                        duration: 1500
+                    })
+                }
+            })
+        })
+    })
+}
+
 // 关闭排队人员名单 drawer 
 const handleDrawerClose = () => {
     realTimeQueueDialog.value.drawerVisible = false;
@@ -421,12 +461,10 @@ const deleteHandle = (id: number | undefined) => {
                 ElMessage.success({
                     message: '删除成功，共删除 ' + resp.rows + ' 条数据',
                     duration: 2000,
-                    onClose: () => {
-                        loadPlaceList()
-                        loadFlowRegulationMode()
-                        loadFlowRegulationList()
-                    }
                 });
+                loadPlaceList()
+                loadFlowRegulationMode()
+                loadFlowRegulationList()
             } else {
                 ElMessage.error({
                     message: '删除失败：' + resp.msg,
@@ -449,7 +487,7 @@ const changeModeHandle = () => {
         type: 'warning'
     }).then(() => {
 
-        let json = { value: !dataForm.value.mode}
+        let json = { value: !dataForm.value.mode }
 
         proxy.$http('/mis/flowRegulation/changeFlowRegulationMode', 'PATCH', json, true, resp => {
             if (resp.code == 200) {
