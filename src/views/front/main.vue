@@ -36,7 +36,7 @@
             <div class="logo-container" @click="router.push({ name: 'FrontIndex' })">
                 <img src="../../assets/front/index/logo2.png" alt="logo" class="logo" />
                 <div>
-                    <h3>i深健康体检</h3>
+                    <h3>智慧健康体检</h3>
                     <p>www.leehuang.com</p>
                 </div>
             </div>
@@ -57,14 +57,14 @@
                 </div>
             </div>
             <!-- 用户操作区 -->
-            <div class="operate-container">
+            <!-- <div class="operate-container">
                 <div class="cart-container">
                     <el-icon class="cart-icon" :size="25">
                         <ShoppingCart />
                     </el-icon>
                     <span>购物车</span>
                 </div>
-            </div>
+            </div> -->
         </header>
     </div>
 
@@ -243,15 +243,15 @@
             <div class="social-login">
                 <p>其他登录方式</p>
                 <div class="social-icons">
-                    <div class="social-icon wechat">
+                    <!-- <div class="social-icon wechat">
                         <i></i>
-                    </div>
+                    </div> -->
                     <div class="social-icon gitee" @click="giteeLogin">
                         <i></i>
                     </div>
-                    <div class="social-icon github">
+                    <!-- <div class="social-icon github">
                         <i></i>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </template>
@@ -392,15 +392,16 @@ import { isBlank, isMobile } from '../../utils/validate'
 import { cookieUtil } from '../../utils/CookieUtil';
 
 
-
-
 import { computed, ref, getCurrentInstance, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 定义框架模型数据
 const instance = getCurrentInstance();
 const { proxy } = instance as any;                  // 通过 proxy 属性调用在 main.ts 文件中定义的公共变量和函数
-const router = useRouter();
+
+const router = useRouter();                         // 获取路由跳转对象
+const route = useRoute();                           // 获取当前路由对象
+
 
 
 const header = ref({                                // 头部框架模型数据
@@ -415,7 +416,7 @@ const header = ref({                                // 头部框架模型数据
 
 // 随机数
 const randomRouterKey = computed(() => {
-    const random = router.currentRoute.value.query.random;
+    const random = route.query.random;
     return random ? String(random) : Date.now();
 });
 
@@ -546,7 +547,7 @@ const tagHandle = (tag: string) => {
 }
 
 // 从 url 地址中获取 keyword，当跳转到搜索页面时回显到搜索框中
-let keyword = router.currentRoute.value.query.keyword;
+let keyword = route.query.keyword;
 header.value.keyword = keyword
 
 const searchGoods = () => {
@@ -702,8 +703,6 @@ const register = () => {
                     platform: thirdPartyUser.value.platform
                 }
             }
-
-            console.log("注册发送的 json：", registerJson);
 
             proxy.$http(registerUrl, 'POST', registerJson, true, resp => {
                 if (resp.code === 200) {
@@ -929,13 +928,9 @@ const logout = () => {
 const isLogin = () => {
     let loginUser = cookieUtil.getFrontendUser()
 
-    
-
     if (loginUser != null) {
         // 检查 token 是否有效
         proxy.$http('/front/customer/checkLogin', 'GET', null, true, function (resp) {
-            console.log(resp);
-            console.log(loginUser.token);
         
             if (resp.result) {
                 user.value.username = loginUser.username
@@ -952,8 +947,6 @@ const isLogin = () => {
         // router.push({ name: 'FrontIndex' })
     }
 }
-
-const route = useRoute()
 
 onMounted(() => {
 

@@ -834,8 +834,6 @@ const recommentNextPlace = (uuid: string) => {
             })
         })
     }
-
-
 }
 
 // 完成体检
@@ -850,14 +848,13 @@ const finishHandle = () => {
     }).then(({ value }) => {
 
         let json = {
-            uuid: value,
-            status: 3
+            uuid: value
         }
 
         proxy.$http("/mis/appointment/updateStatusByUuid", "POST", json, true, function (resp) {
             if (resp.code == 200 && resp.result) {
                 ElMessage.success({
-                    message: '操作成功',
+                    message: '操作成功，已完成本次体检的所有项目！',
                     duration: 1500,
                     onClose: () => {
                         loadCheckInPageData();

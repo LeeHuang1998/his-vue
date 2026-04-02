@@ -190,8 +190,6 @@
             width: 250px;
         }
     }
-
-
 }
 
 .appointment {
@@ -199,12 +197,80 @@
     border-radius: 3px;
     margin: 0 10px 0 10px;
     padding: 0 20px;
+
     legend {
         padding: 0 15px;
         margin-bottom: 20px;
+
         h4 {
             font-size: 16px;
             margin: 0;
+        }
+    }
+}
+
+
+.appointmentInfo-container {
+    width: 630px;
+    height: 400px;
+    margin: 0 auto;
+
+    .info-item {
+        width: 620px;
+        position: relative;
+        /* 为绝对定位的子元素提供参照物 */
+        display: flex;
+        flex-wrap: wrap;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+
+        span {
+            width: 50%;
+            margin-bottom: 8px;
+            text-align: left;
+            display: inline-block;
+            /* 设置为 inline-bloce，既可以设置 width 和 margin，又能像行内元素一样排列 */
+            font-weight: bold;
+        }
+
+        span:nth-child(7) {
+            width: 100%;
+        }
+
+        .status-span {
+            position: absolute;
+            /* 绝对定位 */
+            top: 10px;
+            /* 距离顶部的距离，需与 padding 匹配 */
+            right: 0;
+            /* 靠右 */
+            width: auto;
+            /* 宽度自适应 */
+            margin: 0;
+            /* 清除之前的 margin */
+            font-weight: bold;
+            font-size: 17px;
+            margin-right: 10px;
+        }
+
+        /* 1: 未签到 */
+        .status-1 {
+            color: #e6a23c;
+        }
+
+        /* 2: 已签到 */
+        .status-2 {
+            color: #67c23a;
+        }
+
+        /* 3: 已结束 */
+        .status-3 {
+            color: #909399;
+        }
+
+        /* 4: 已关闭 */
+        .status-4 {
+            color: #f56c6c;
         }
     }
 }

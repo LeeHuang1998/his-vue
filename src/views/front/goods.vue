@@ -302,11 +302,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, getCurrentInstance, onMounted } from 'vue'
+import { ref, getCurrentInstance, onMounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import router from '../../router';
+import { useRoute, useRouter } from 'vue-router'
 
 let { proxy } = getCurrentInstance() as any
+
+const route = useRoute()     // 当前页面路由对象，用于获取 params
+const router = useRouter()   // 路由跳转对象，用于 push
 
 // 商品数量
 const goodsNum = ref({
@@ -357,14 +360,25 @@ const handleChange = (value: number) => {
 // 发送请求查询数据
 const getGoodsData = () => {
     // 从路由中获取商品的主键值
-    let id = router.currentRoute.value.params.id
+    const id = route.params.id
+
+    if (!id) {
+        ElMessage.error({
+            message: '商品 ID 不存在，无法访问该商品',
+            duration: 1000,
+            onClose: () => {
+                router.push({ name: "404" })
+            }
+        })
+        return
+    }
 
     proxy.$http('/front/goods/getGoodsById', 'POST', { id: id }, true, resp => {
         let pageVO = resp.pageVO
 
         if (pageVO != null) {
             // 将数据赋值给 goodsData
-            goodsData.value.id = router.currentRoute.value.params.id
+            goodsData.value.id = id
             goodsData.value.code = pageVO.code
             goodsData.value.title = pageVO.title
             goodsData.value.description = pageVO.description
@@ -434,9 +448,17 @@ const createOrder = () => {
     });
 }
 
-onMounted(() => {
-    getGoodsData()
-})
+// 监听路由参数变化，防止同一组件复用时页面数据不刷新
+watch(
+    () => route.params.id,
+    (newId) => {
+        // 只要 id 改变，就重新获取商品数据
+        if (newId) {
+            getGoodsData()
+        }
+    },
+    { immediate: true }  // 组件加载时立即执行
+)
 </script>
 
 <style lang="less" scoped>

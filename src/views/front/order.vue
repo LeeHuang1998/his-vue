@@ -195,11 +195,9 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, getCurrentInstance, onUnmounted, nextTick } from 'vue';
-import router from '../../router';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-
 import QRCode from 'qrcode'
-
 // WebSocket
 import SockJS from 'sockjs-client';
 import { Client, over } from 'stompjs';
@@ -207,6 +205,9 @@ import { Client, over } from 'stompjs';
 import { cookieUtil } from '../../utils/CookieUtil';
 
 const { proxy } = getCurrentInstance() as any;
+
+const route = useRoute();                   // 获取当前路由对象
+const router = useRouter();                 // 获取路由跳转对象
 
 const orderData = ref({
     outTradeNo: '20230503000001',
@@ -670,7 +671,7 @@ onUnmounted(() => {
 })
 
 onMounted(() => {
-    let outTradeNo = router.currentRoute.value.params.outTradeNo
+    let outTradeNo = route.params.outTradeNo
 
     if (!outTradeNo) {
         proxy.$message.error('订单号不存在')

@@ -278,10 +278,13 @@
 
 <script lang="ts" setup>
 import { ref, getCurrentInstance, onMounted } from 'vue';
-import router from '../../router/index';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 
 const { proxy } = getCurrentInstance() as any;
+
+const route = useRoute();                   // 获取当前路由对象
+const router = useRouter();                 // 获取路由跳转对象
 
 const goodsSnapshot = ref({
     code: null,
@@ -305,8 +308,8 @@ const goodsSnapshot = ref({
     checkupCount: null
 });
 
-let id = router.currentRoute.value.params.id;
-let mode = router.currentRoute.value.params.mode;
+const id = route.params.id;
+const mode = route.params.mode;
 
 const loadSnapshot = () => {
     let json = {

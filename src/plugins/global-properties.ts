@@ -13,6 +13,7 @@ export default {
     // 全局方法
     app.config.globalProperties.$http = http.request;
     app.config.globalProperties.$upload = http.upload;
+    app.config.globalProperties.$download = http.download;
     app.config.globalProperties.$isAuth = auth.isAuth;
     app.config.globalProperties.$getPdf = getPdf;
   }

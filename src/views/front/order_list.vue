@@ -12,11 +12,14 @@
                 <el-radio-group v-model="searchOrderForm.statusLabel" size="default" @change="searchHandle()">
                     <el-radio-button value="全部">全部</el-radio-button>
                     <el-radio-button value="未付款">未付款</el-radio-button>
-                    <el-radio-button value="已关闭">已关闭</el-radio-button>
+                    <el-radio-button value="已预约">已预约</el-radio-button>
                     <el-radio-button value="已付款">已付款</el-radio-button>
                     <el-radio-button value="已退款">已退款</el-radio-button>
-                    <el-radio-button value="已预约">已预约</el-radio-button>
+                    <el-radio-button value="已全部预约">已全部预约</el-radio-button>
                     <el-radio-button value="已结束">已结束</el-radio-button>
+                    <el-radio-button value="退款中">退款中</el-radio-button>
+                    <el-radio-button value="退款失败">退款失败</el-radio-button>
+                    <el-radio-button value="已关闭">已关闭</el-radio-button>
                 </el-radio-group>
             </el-form-item>
         </el-form>
@@ -49,6 +52,15 @@
                         <span class="label">购买数量</span>
                         <span class="value">×{{ order.number }}</span>
                     </div>
+                    <div class="number">
+                        <span class="label">预约数量</span>
+                        <span class="value">×{{ order.appointedNum }}</span>
+                        <span class="value">
+                            <el-button type="primary" link size="small"  @click="searchAppointmentInfoByOrderId(order.id)">
+                                查看预约信息
+                            </el-button>
+                        </span>
+                    </div>
                     <div class="amount">
                         <span class="label">合计</span>
                         <span class="value">￥{{ order.payableAmount.toFixed(2) }}</span>
@@ -66,14 +78,14 @@
                         <el-button v-if="order.status == 1" type="danger" @click="closeOrderHandle(order.outTradeNo)">
                             取消订单
                         </el-button>
-                        <el-button v-if="order.status == 3" type="primary"
-                            :disabled="order.appointCount == order.number"
-                            @click="appointHandle(order.id, order.number, order.appointCount)">
-                            预约体检
+                        <el-button v-if="order.status == 2 || order.status == 3 || order.status == 5"
+                            :type="order.status == 5 ? 'info' : 'primary'" :disabled="order.status == 5"
+                            @click="appointHandle(order.id, order.number)">
+                            {{ order.status == 5 ? '已全部预约' : '预约体检' }}
                         </el-button>
                         <el-button v-if="order.status == 6" type="primary">获取发票</el-button>
                         <el-button v-if="order.status == 3" type="danger"
-                            :disabled="order.appointCount > 0 || order.disabled" @click="refundClickHandle(order)">
+                            :disabled="order.appointedNum > 0 || order.disabled" @click="refundClickHandle(order)">
                             退款
                         </el-button>
                         <el-button type="danger" v-if="order.status == 7 || order.status == 4"
@@ -144,7 +156,7 @@
                     <el-input v-model="appointDialog.dataForm.tel" placeholder="输入电话号码" maxlength="11" clearable />
                 </el-form-item>
                 <el-form-item label="备注信息">
-                    <el-input v-model="appointDialog.dataForm.company" placeholder="输入备注信息" maxlength="100" clearable />
+                    <el-input v-model="appointDialog.dataForm.desc" placeholder="输入备注信息" maxlength="100" clearable />
                 </el-form-item>
             </fieldset>
         </el-form>
@@ -156,9 +168,28 @@
         </template>
     </el-dialog>
 
-
-
+    <el-dialog title="预约信息" :close-on-click-modal="false" v-model="appointmentInfoDialog.visible" width="650px">
+        <el-scrollbar class="appointmentInfo-container">
+            <div v-if="appointmentInfoDialog.appointmentInfoList.length !== 0" class="info-item" v-for="appointmentInfo in appointmentInfoDialog.appointmentInfoList"
+                :key="appointmentInfo.id">
+                <div class="base-info">
+                    <span>姓名：{{ appointmentInfo.name }}</span>
+                    <span>性别：{{ appointmentInfo.sex }}</span>
+                    <span>身份证号：{{ appointmentInfo.pid }}</span>
+                    <span>电话号码：{{ appointmentInfo.tel }}</span>
+                    <span>预约日期：{{ dayjs(appointmentInfo.appointmentDate).format('YYYY-MM-DD') }}</span>
+                    <span>签到时间：{{ appointmentInfo.checkinTime == null ? '未签到' : dayjs(appointmentInfo.checkinTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                    <span>备注信息：{{ appointmentInfo.desc }}</span>
+                </div>
+                <div class="status-info">
+                    <span class="status-span" :class="['status-' + appointmentInfo.status]">{{ appointmentStatusTextMap[appointmentInfo.status] }}</span>
+                </div>
+            </div>
+            <el-empty style="margin-top: 35px;" v-else description="没有任何预约信息" />
+        </el-scrollbar>
+    </el-dialog>
 </template>
+
 
 <script lang="ts" setup>
 import { ref, getCurrentInstance, onMounted } from 'vue';
@@ -221,7 +252,6 @@ const refundDialog = ref({
 const appointDialog = ref({
     visible: false,
     number: null,
-    appointCount: null,
     dataForm: {
         orderId: null,
         date: null,
@@ -229,7 +259,7 @@ const appointDialog = ref({
         pid: null,
         tel: null,
         mailingAddress: null,
-        company: null
+        desc: null
     },
     dataRule: {
         date: [{ required: true, message: '日期不能为空' }],
@@ -248,7 +278,13 @@ const appointDialog = ref({
     }
 });
 
-function disabledDate(date) {
+// 预约信息弹窗
+const appointmentInfoDialog = ref({
+    visible: false,
+    appointmentInfoList: []
+})
+
+const disabledDate = (date) => {
     //只能预约从明天起未来 30 天的体检
     let bool = dayjs(date).isBetween(dayjs(), dayjs().add(31, 'day'));
     return !bool;
@@ -258,21 +294,36 @@ function disabledDate(date) {
 const statusMap = {
     '全部': null,
     '未付款': 1,
-    '已关闭': 2,
+    '已预约': 2,
     '已付款': 3,
     '已退款': 4,
-    '已预约': 5,
-    '已结束': 6
+    '已全部预约': 5,
+    '已结束': 6,
+    '退款中': 7,
+    '退款失败': 8,
+    '已关闭': 9
+
 };
 
 // 数字状态映射
 const statusTextMap = {
     1: '未付款',
-    2: '已关闭',
+    2: '已预约',
     3: '已付款',
     4: '已退款',
-    5: '已预约',
-    6: '已结束'
+    5: '已全部预约',
+    6: '已结束',
+    7: '退款中',
+    8: '退款失败',
+    9: '已关闭',
+};
+
+// 预约状态映射
+const appointmentStatusTextMap = {
+    1: '未签到',
+    2: '已签到',
+    3: '已结束',
+    4: '已关闭'
 };
 
 // 分页查询及条件查询
@@ -330,6 +381,21 @@ const currentChangeHandle = (val: number) => {
     searchHandle()
 }
 
+// 查询预约信息
+const searchAppointmentInfoByOrderId = (orderId: number) => {
+    proxy.$http(`/front/order/searchAppointmentInfoByOrderId/${orderId}`, 'GET', null, true, resp => {
+        if (resp.code === 200) {
+            appointmentInfoDialog.value.appointmentInfoList = resp.appointmentInfoVOList
+            appointmentInfoDialog.value.visible = true
+        } else {
+            ElMessage.error({
+                message: resp.message,
+                duration: 1200
+            })
+        }
+    })
+}
+
 // 查看商品快照
 const searchSnapshotHandle = (snapshotId: string) => {
     router.push({
@@ -370,23 +436,19 @@ const paymentHandle = (outTradeNo: string) => {
 }
 
 // 预约按钮
-const appointHandle = (id: number, number: number, appointCount: number) => {
-    if (appointCount == 0) {
-        ElMessageBox.confirm("该订单预约体检后将无法退款，是否预约体检？", '提示信息', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-        }).then(() => {
-            appointDialog.value.visible = true;
-            appointDialog.value.dataForm.orderId = id;
-            appointDialog.value.number = number;
-            appointDialog.value.appointCount = ++appointCount;
-            proxy.$nextTick(() => {
-                proxy.$refs['dialogForm'].resetFields();
-            });
+const appointHandle = (id: number, number: number) => {
+    ElMessageBox.confirm("该订单预约体检后将无法退款，是否预约体检？", '提示信息', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+        appointDialog.value.visible = true;
+        appointDialog.value.dataForm.orderId = id;
+        appointDialog.value.number = number;
+        proxy.$nextTick(() => {
+            proxy.$refs['dialogForm'].resetFields();
         });
-    }
-
+    });
 }
 
 // 预约体检弹窗提交
@@ -399,22 +461,22 @@ const appointmentDialogSubmit = () => {
                 name: appointDialog.value.dataForm.name,
                 pid: appointDialog.value.dataForm.pid,
                 tel: appointDialog.value.dataForm.tel,
-                desc: appointDialog.value.dataForm.company
+                desc: appointDialog.value.dataForm.desc
             };
             proxy.$http('/front/appointment/insertAppointment', 'POST', json, true, function (resp) {
                 if (resp.code == 200) {
                     let result = resp.result
-                    if (result == "预约成功") {
+                    if (result == "success") {
                         ElMessage({
-                            message: result,
+                            message: "预约成功！",
                             type: 'success',
                             duration: 1200
                         });
                         appointDialog.value.visible = false;
                         searchHandle();
                     } else {
-                        proxy.$message({
-                            message: result,
+                        ElMessage({
+                            message: result == "full" ? "当天预约已满，请选择其他日期" : "预约失败，请联系客服人员",
                             type: 'error',
                             duration: 1200
                         });
@@ -488,7 +550,6 @@ const refundHandle = () => {
 const checkRefundHandle = (outTradeNo: string) => {
     proxy.$http('/front/order/checkRefund', 'POST', { outTradeNo: outTradeNo }, true, resp => {
         if (resp.code == 200) {
-            console.log(resp);
 
             ElMessageBox.confirm(resp.refundResult, '查询退款', {
                 comfirmButtonText: '确定',

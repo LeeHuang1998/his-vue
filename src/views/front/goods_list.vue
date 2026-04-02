@@ -55,7 +55,7 @@
             </div>
             <ul v-else class="goods-list" v-infinite-scroll="loadGoodsList">
                 <li class="goods-item" v-for="goods in listData.goodsList" :key="goods.id">
-                    <div class="goods"  @click="goToGoodsPage(goods.id)">
+                    <div class="goods" @click="goToGoodsPage(goods.id)">
                         <div class="img-desc">
                             <img :src="goods.image" alt="">
                             <!-- 遮罩层 -->
@@ -98,9 +98,13 @@
 import { ref, getCurrentInstance, onMounted } from 'vue'
 
 import SvgIcon from '../../components/SvgIcon.vue';
-import router from '../../router/index';
+import { useRoute, useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance() as any;
+
+const route = useRoute()            // 获取当前路由对象
+const router = useRouter()          // 获取路由跳转对象
+
 
 // 查询表单
 const searchForm = ref({
@@ -293,8 +297,8 @@ const goToGoodsPage = (goodsId: number) => {
 
 onMounted(() => {
     // 进入页面后，获取路由传递的参数
-    let keyword = router.currentRoute.value.query.keyword;
-    let partId = router.currentRoute.value.query.partId
+    let keyword = route.query.keyword;
+    let partId = route.query.partId
 
     if (keyword == '' || keyword == null) {
         searchForm.value.keyword = null;

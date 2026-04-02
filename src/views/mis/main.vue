@@ -216,13 +216,13 @@
                     <el-tab-pane v-for="item in siteContent.mainTabs" :label="item.title" :name="item.name">
                         <el-card :body-style="siteContent.siteContentViewHeight">
                             <!-- 避免浏览器通过缓存加载而不刷新页面，给 url 添加随机数后强制浏览器刷新，加载页面内容 -->
-                            <router-view :key="router.currentRoute.value.query.random" />
+                            <router-view :key="route.query.random" />
                         </el-card>
                     </el-tab-pane>
                 </el-tabs>
                 <!-- 若点击的是首页等无需创建标签的菜单项，则直接显示 el-card -->
                 <el-card v-else :body-style="siteContent.siteContentViewHeight">
-                    <router-view :key="router.currentRoute.value.query.random" />
+                    <router-view :key="route.query.random" />
                 </el-card>
             </main>
         </div>

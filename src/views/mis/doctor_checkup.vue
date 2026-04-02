@@ -200,7 +200,8 @@ const data = ref({
         place: null,
         uuid: null,
         checkup: [],
-        template: null
+        template: null,
+        image: null
     },
     customer: {
         name: "<无>",
@@ -368,9 +369,6 @@ const loadCheckup = () => {
                         // 中文冒号分割，将第一个元素作为 select，第二个元素作为 value
                         let selectAndValue = result.value.split("：");
 
-                        console.log("分割数据：", selectAndValue);
-
-
                         if (selectAndValue.length == 1) {
                             one.input = { select: selectAndValue[0], value: null }
                         } else if (selectAndValue.length == 2) {
@@ -436,7 +434,7 @@ const clearCheckupHandle = () => {
     }
 }
 
-// TODO，将 palce 改成 id，提交体检项目检查结果
+// 提交体检项目检查结果
 const dataFormSubmit = () => {
     ElMessageBox.confirm('确认提交当前体检项目检查结果吗？', '提示信息', {
         confirmButtonText: '确定',

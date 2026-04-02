@@ -134,6 +134,7 @@ const routes: Array<RouteRecordRaw> = [             // 定义路由数组
                     isTab: true
                 }
             },
+
             {
                 path: 'order',
                 name: 'MisOrder',
@@ -185,6 +186,15 @@ const routes: Array<RouteRecordRaw> = [             // 定义路由数组
                 component: () => import('../views/mis/doctor_checkup.vue'),
                 meta: {
                     title: '医生检查',
+                    isTab: true
+                }
+            },
+            {
+                path: 'checkup_report',
+                name: 'MisCheckupReport',
+                component: () => import('../views/mis/checkup_report.vue'),
+                meta: {
+                    title: '体检报告',
                     isTab: true
                 }
             },
