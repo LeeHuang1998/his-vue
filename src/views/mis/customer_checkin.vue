@@ -258,10 +258,10 @@
                     <td align="center">{{ index + 1 }}</td>
                     <td align="center" :class="{ 'isCompleted-null': one.isCompleted === null }">{{ one.place }}</td>
                     <td align="center" :class="{
-                            'isCompleted-true': one.isCompleted === true,
-                            'isCompleted-false': one.isCompleted === false,
-                            'isCompleted-null': one.isCompleted === null
-                        }">
+                        'isCompleted-true': one.isCompleted === true,
+                        'isCompleted-false': one.isCompleted === false,
+                        'isCompleted-null': one.isCompleted === null
+                    }">
                         {{
                             one.isCompleted === true ? '已完成' :
                                 one.isCompleted === false ? '未完成' : '暂时停用'
@@ -276,16 +276,13 @@
                 @click="continueDialog.visible = false">取消</el-button>
         </div>
     </el-dialog>
-
 </template>
 
 <script lang="ts" setup>
-import { getCurrentInstance, ref, onMounted, markRaw, shallowRef, nextTick } from 'vue';
+import { getCurrentInstance, ref, onMounted, shallowRef, nextTick } from 'vue';
 
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
 import { Camera, RefreshRight, Document } from '@element-plus/icons-vue';
-
-import router from '../../router/index';
 
 import { dayjs } from 'element-plus';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -523,7 +520,7 @@ function hex2a(hex) {
 let ws = null
 // 创建 ws 连接，被动读卡器读取身份证信息
 function conWS() {
-    // 发送请求给 webSocket服务器，读取身份证信息
+    // 发送请求给 webSocket服务器，读取身份证信息(30004 为读卡器端口)
     const webUrl = 'ws://127.0.0.1:30004/ws'
     ws = new WebSocket(webUrl)
 
@@ -635,59 +632,64 @@ const hasAppointment = (identityJson: object) => {
         console.log(resp);
 
         if (resp.code == 200) {
-            let appointmentResult = resp.appointmentResult;
+            const appointmentResult = resp.appointmentResult;
 
-            if (!appointmentResult == null) {
-                ElMessage.warning({
-                    message: '该用户没有预约记录',
-                    duration: 1500
-                })
-            } else {
-                switch (appointmentResult) {
-                    case 1: // 未签到
-                        // 在弹窗中显示身份证信息
-                        checkinDialog.value.dataForm.name = identityJson.name
-                        checkinDialog.value.dataForm.pid = identityJson.pid
-                        checkinDialog.value.dataForm.sex = identityJson.sex
-                        checkinDialog.value.dataForm.photo_1 = identityJson.image
-                        // 开启摄像头
-                        openCamera()
-                        break
-                    case 2: // 已签到
-                        ElMessage.warning({
-                            message: '该用户已签到，请勿重复签到',
-                            duration: 1500
-                        })
-                        break
-                    case 3: // 已结束
-                        ElMessage.warning({
-                            message: '该预约已结束',
-                            duration: 1500
-                        })
-                        break
-                    case 4: // 已关闭
-                        ElMessage.warning({
-                            message: '该预约已关闭',
-                            duration: 1500
-                        })
-                        break
-                    default:
-                        ElMessage.error({
-                            message: '未知的预约状态',
-                            duration: 1500
-                        })
-                }
+            switch (appointmentResult) {
+                case 0: // 没有预约
+                    ElMessage.warning({
+                        message: '该用户没有预约记录',
+                        duration: 1500
+                    });
+                    break;
+
+                case 1: // 未签到
+                    // 在弹窗中显示身份证信息
+                    checkinDialog.value.dataForm.name = identityJson.name;
+                    checkinDialog.value.dataForm.pid = identityJson.pid;
+                    checkinDialog.value.dataForm.sex = identityJson.sex;
+                    checkinDialog.value.dataForm.photo_1 = identityJson.image;
+
+                    // 开启摄像头
+                    openCamera();
+                    break;
+
+                case 2: // 已签到
+                    ElMessage.warning({
+                        message: '该用户已签到，请勿重复签到',
+                        duration: 1500
+                    });
+                    break;
+
+                case 3: // 已完成
+                    ElMessage.warning({
+                        message: '该预约已结束',
+                        duration: 1500
+                    });
+                    break;
+
+                case 4: // 已关闭
+                    ElMessage.warning({
+                        message: '该预约已关闭',
+                        duration: 1500
+                    });
+                    break;
+
+                default:
+                    ElMessage.error({
+                        message: '未知的预约状态',
+                        duration: 1500
+                    });
             }
         } else {
             ElMessage.error({
-                message: "预约查询错误，原因：" + resp.message, // 注意字段名可能不同
+                message: "预约查询错误，原因：" + resp.message,
                 duration: 1500
-            })
+            });
         }
     })
 }
 
-// 添加video和canvas的ref变量
+// video 和 canvas
 const videoRef = ref<HTMLVideoElement | null>(null);
 const photoRef = ref<HTMLCanvasElement | null>(null);
 
@@ -1025,8 +1027,6 @@ const guidanceHandle = (appointmentId: any) => {
 onMounted(() => {
     loadCheckInPageData();
 })
-
-
 </script>
 
 

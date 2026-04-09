@@ -199,15 +199,16 @@ import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import QRCode from 'qrcode'
 // WebSocket
-import SockJS from 'sockjs-client';
-import { Client, over } from 'stompjs';
-
+import { useWebSocket } from '../../utils/useWebSocketUtil';
 import { cookieUtil } from '../../utils/CookieUtil';
 
 const { proxy } = getCurrentInstance() as any;
 
 const route = useRoute();                   // 获取当前路由对象
 const router = useRouter();                 // 获取路由跳转对象
+
+// 引入 WebSocket
+const { connect, disconnect } = useWebSocket();
 
 const orderData = ref({
     outTradeNo: '20230503000001',
@@ -294,106 +295,6 @@ const qrCodeDialog = ref({
     result: null as null | 'success' | 'fail',          // null=未支付, 'success'=成功, 'fail'=失败 
 })
 
-/* webSocket */
-// STOMP 客户端
-let stompClient: Client | null = null;
-let currentOutTradeNo: string | null = null;                        // 跟踪当前订阅的订单号
-let subscription: any = null                                        // STOMP 当前订阅
-
-// 连接 WebSocket
-const connectWebSocket = (outTradeNo: string) => {
-    // 判断是否已连接且监听的为当前订单
-    if (stompClient?.connected && currentOutTradeNo === outTradeNo) {
-        console.log('WebSocket 已连接，复用现有连接');
-        return;
-    }
-
-    // 断开旧连接，防止资源泄露
-    disconnectWebSocket();
-
-    try {
-
-        // 创建 WebSocket 连接，创建一个到服务器 /ws 端点的基础连接
-        const socket = new SockJS(`${proxy.$baseUrl}/ws`);
-        // 将 SockJS 连接包装成 STOMP 协议客户端
-        stompClient = over(socket);
-        // 5秒重连
-        stompClient.reconnectDelay = 5000
-        // 10秒心跳
-        stompClient.heartbeat = { incoming: 10000, outgoing: 10000 }
-
-        // 设置当前监听的订单
-        currentOutTradeNo = outTradeNo;
-
-        // 获取 token
-        const token = cookieUtil.getFrontendUser()?.token || ''
-
-        // JavaScript 中 !'' → true
-        if (!token) {
-            ElMessage.error('未登录，请重新登录');
-            router.push({ name: 'FrontIndex' });
-            return;
-        }
-
-        /**
-         * STOMP 客户端向服务器发起连接请求，携带认证信息
-         * connect(headers, connectCallback, errorCallback)：
-         *      headers：STOMP 协议头，Authorization 是存放在 STOMP 的 CONNECT 帧头中，后端 StompAuthInterceptor 里靠 accessor.getFirstNativeHeader("Authorization") 取出，用于传递认证信息
-         *          Bearer 前缀是 HTTP 认证标准中定义的认证方案标识符，标准明确规定，Authorization 协议头中的 token 必须加上 Bearer 前缀，
-         *          不使用前缀会导致部分服务器（尤其是严格遵循标准的服务器）无法识别令牌，从而拒绝认证请求。
-         *      connectCallback：连接成功回调，只有这里才能订阅、发送
-         *      errorCallback：失败的回调函数
-         * */
-        stompClient.connect({ Authorization: `Bearer ${token}` }, () => {
-            console.log('WebSocket 连接成功');
-
-            // 取消之前的订阅
-            if (subscription) {
-                subscription.unsubscribe()
-                subscription = null
-            }
-
-            /**
-             * subscribe(destination, callback, headers)：
-             *      destination：订阅的目的地，格式为 /topic/payment/订单号，表示订阅该订单的支付结果
-             *                   /topic/：STOMP 消息代理前缀，表示广播给所有订阅者
-             *      callback：收到消息后的回调函数
-             *                frame：STOMP 消息帧对象，包含消息头和消息体，frame.body 为消息体内容，JSON 字符串
-             *      headers：订阅请求头，同样需要认证信息，防止跨域伪造订阅
-             */
-            stompClient?.subscribe(`/topic/payment/${outTradeNo}`, (frame) => {
-                try {
-                    const result = JSON.parse(frame.body);
-                    console.log('收到支付结果:', result);
-
-                    // 判断支付结果中的订单号是否为当前订单号
-                    if (result.outTradeNo !== outTradeNo) {
-                        console.warn('收到非当前订单的支付结果，忽略', result.outTradeNo, outTradeNo);
-                        return;
-                    }
-
-                    if (result.status === 'success') {
-                        handlePaymentSuccess(outTradeNo);
-                    } else if (result.status === 'failure') {
-                        handlePaymentFailure(outTradeNo);
-                    }
-                } catch (e) {
-                    console.error('解析支付结果失败:', e);
-                }
-            },
-                { Authorization: `Bearer ${token}` }                // 订阅时也携带 token，防止跨域伪造订阅
-            );
-        }, (error) => {
-            console.error('WebSocket 连接失败:', error);
-            ElMessage.warning('实时通知不可用，请尝试手动查询');
-            handleWsError(error);
-        });
-    } catch (e) {
-        console.error('初始化 WebSocket 失败:', e);
-        handleWsError(e);
-    }
-};
-
 // 支付成功处理
 const handlePaymentSuccess = (outTradeNo: string) => {
     qrCodeDialog.value.result = 'success';
@@ -415,110 +316,6 @@ const handlePaymentFailure = (outTradeNo: string) => {
     ElMessage.warning('支付失败或已取消');
 };
 
-// 统一错误处理
-const handleWsError = (error: any) => {
-    let errorMsg = '连接失败'
-
-    // 提取错误信息
-    if (error?.headers?.message) {
-        errorMsg = error.headers.message
-    } else if (error?.message) {
-        errorMsg = error.message
-    } else if (typeof error === 'string') {
-        errorMsg = error
-    }
-
-    console.error('WebSocket 错误详情:', errorMsg, error)
-
-    // 处理特定错误
-    if (errorMsg.includes('无效的 token') || errorMsg.includes('401') || errorMsg.includes('token')) {
-        ElMessage.error('登录已失效，请重新登录')
-        cookieUtil.clearAllUserData()
-        router.push('/login')
-    } else if (errorMsg.includes('403') || errorMsg.includes('无权访问') || errorMsg.includes('权限')) {
-        ElMessage.warning('无权访问该订单的支付状态')
-    } else if (errorMsg.includes('会话已失效')) {
-        ElMessage.warning('会话已超时，请重新提交订单')
-        disconnectWebSocket()
-    } else {
-        // 降级到轮询
-        console.warn('WebSocket 异常，将回退到轮询', error)
-        ElMessage.info('实时通知不可用，将使用轮询检测支付状态')
-        startPollingOrderStatus(orderData.value.outTradeNo)
-    }
-};
-
-// 断开 WebSocket
-const disconnectWebSocket = () => {
-    // 1. 取消订阅
-    if (subscription) {
-        try {
-            subscription.unsubscribe()
-        } catch (e) {
-            console.warn('取消订阅失败', e)
-        }
-        subscription = null
-    }
-
-    // 2. 只有在 STOMP 客户端存在时断开连接
-    if (stompClient) {
-        try {
-            // 断开连接
-            stompClient.disconnect(() => {
-                console.log('WebSocket 已安全断开')
-                stompClient = null
-                currentOutTradeNo = null
-            })
-        } catch (e) {
-            // 断开失败，也强制清空引用
-            console.error('断开连接时出错', e)
-            stompClient = null
-            currentOutTradeNo = null
-        }
-    }
-
-    // 3. 清理轮询
-    clearPolling()
-};
-
-/* 降级方案 */
-let pollTimer: any = null // 轮询计时器
-let isPolling = false // 是否正在轮询
-// 降级轮询订单状态方案
-const startPollingOrderStatus = (outTradeNo: string) => {
-    // 若正在轮询则直接返回
-    if (isPolling) return
-
-    isPolling = true
-    pollTimer = setInterval(async () => {
-        try {
-            proxy.$http(`/front/order/checkOrderStatus/${outTradeNo}`, 'GET', null, true, resp => {
-
-                if (resp.code === 200) {
-                    if (resp.status === 3) {                         // 已支付
-                        handlePaymentSuccess(outTradeNo)
-                        clearPolling()
-                    } else if (resp.status === 1) {                                        // 已取消
-                        handlePaymentFailure(outTradeNo)
-                        clearPolling()
-                    }
-                }
-            })
-
-        } catch (err) {
-            console.error('轮询失败:', err)
-        }
-    }, 3000) // 3秒轮询一次
-}
-
-// 清理轮询
-const clearPolling = () => {
-    if (pollTimer) {
-        clearInterval(pollTimer)
-        pollTimer = null
-    }
-    isPolling = false
-}
 
 // 重置生成状态 + 2 秒冷却
 const resetQrState = () => {
@@ -580,7 +377,7 @@ const createQrCode = (isRefresh: boolean) => {
                     if (error) {
                         console.error('生成二维码失败:', error);
                         ElMessage.error('二维码生成失败');
-                        disconnectWebSocket();
+                        disconnect();
                     } else {
                         qrCodeDialog.value.qrCode = resp.qrCode;            // 标记已生成
                     }
@@ -590,7 +387,7 @@ const createQrCode = (isRefresh: boolean) => {
                 console.error('生成二维码异常:', resp.msg)
                 ElMessage.error(resp.msg || '接口错误，生成支付二维码失败')
                 resetQrState();
-                disconnectWebSocket();
+                disconnect();
             }
         })
     });
@@ -648,26 +445,38 @@ const goToPay = () => {
             isGenerating: false,
             result: null
         };
+
+        // 获取 token
+        const token = cookieUtil.getFrontendUser()?.token || ''; 
+
         // 建立 WebSocket 连接
-        connectWebSocket(orderData.value.outTradeNo);
+        connect(token, (message) => {
+            const result = JSON.parse(message.body);
+            if (result.outTradeNo !== orderData.value.outTradeNo) return;
+
+            if (result.status === 'success') {
+                handlePaymentSuccess(orderData.value.outTradeNo);
+            } else if (result.status === 'failure') {
+                handlePaymentFailure(orderData.value.outTradeNo);
+            }
+        }, `/topic/payment/${orderData.value.outTradeNo}`);
 
         // 生成二维码
         createQrCode(false);
     }
 }
 
-
 // 弹窗关闭处理
 const onQrDialogClose = () => {
     // 仅在非支付成功状态时断开
     if (qrCodeDialog.value.result !== 'success') {
-        disconnectWebSocket();
+        disconnect();
     }
 }
 
 // 组件卸载时清理连接
 onUnmounted(() => {
-    disconnectWebSocket();
+    disconnect();
 })
 
 onMounted(() => {

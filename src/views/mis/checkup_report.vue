@@ -39,20 +39,15 @@
                     <span>{{ (data.pageIndex - 1) * data.pageSize + scope.$index + 1 }}</span>
                 </template>
             </el-table-column>
-            <el-table-column header-align="center" align="center" label="姓名" width="120" min-width="50" fixed>
-                <template #default="scope">
-                    <span class="customer-name"
-                        @dblclick="copyAddressHandle(scope.row.name, scope.row.tel, scope.row.mailingAddress)">{{
-                            scope.row.name }}</span>
-                </template>
-            </el-table-column>
+            <el-table-column header-align="center" align="center" label="姓名" width="120" min-width="50" fixed />
             <el-table-column prop="appointmentDate" header-align="center" align="center" label="体检日期" width="150" />
             <el-table-column prop="sex" header-align="center" align="center" label="性别" width="80" />
             <el-table-column prop="age" header-align="center" align="center" label="年龄" width="80" />
             <el-table-column prop="tel" header-align="center" align="center" label="电话" width="150" />
             <el-table-column prop="status" header-align="center" align="center" label="报告状态" width="140">
                 <template #default="scope">
-                    <el-tag :type="getStatusType(scope.row.status)" size="default" effect="dark" style="font-size: 13px;">
+                    <el-tag :type="getStatusType(scope.row.status)" size="default" effect="dark"
+                        style="font-size: 13px;">
                         {{ getStatusText(scope.row.status) }}
                     </el-tag>
                 </template>
@@ -68,7 +63,7 @@
                 <template #default="scope">
                     <!-- 只有预约体检的状态为已完成（3）时才可以生成报告 -->
                     <el-button type="primary" link :disabled="scope.row.appointmentStatus != 3"
-                        @click="createReportHandle(scope.row.reportId)">
+                        @click="createReportHandle(scope.row.reportId, scope.row.status)">
                         生成报告
                     </el-button>
                     <el-button type="success" link :disabled="!(scope.row.status == '3' || scope.row.status == '4')"
@@ -123,14 +118,14 @@
             </span>
         </template>
     </el-dialog>
-
-
 </template>
 
 <script lang="ts" setup>
 import { ref, getCurrentInstance, onMounted } from 'vue';
-import { ElMessage, ElMessageBox, ElNotification, type UploadFile, type UploadFiles, type UploadRawFile } from 'element-plus'
-import { isBlank } from '../../utils/validate';
+import { ElMessage, ElMessageBox, type UploadFile, type UploadFiles, type UploadRawFile } from 'element-plus'
+
+import { useWebSocket } from '../../utils/useWebSocketUtil';
+import { cookieUtil } from '../../utils/CookieUtil';
 
 import { dayjs } from 'element-plus'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
@@ -271,18 +266,27 @@ const currentChangeHandle = (val: number) => {
     loadDataList();
 }
 
-const copyAddressHandle = (name: string, tel: string, address: string) => {
-
-}
-
 // 生成体检报告
-const createReportHandle = (id: number) => {
-    ElMessageBox.confirm("确定手动生成体检报告吗？", '提示信息', {
+const createReportHandle = (id: number, status: number) => {
+    let text = '';
+
+    if (status === 1) {
+        text = "确定【手动】生成体检报告吗？"
+    } else if (status === 3) {
+        text = "该报告已经生成，是否【重新生成】？"
+    } else {
+        ElMessage.warning({
+            message: '当前状态不允许生成体检报告',
+            duration: 2000
+        });
+        return;
+    }
+
+    ElMessageBox.confirm(text, '提示信息', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
     }).then(() => {
-
         proxy.$http('/mis/checkup_report/createReport', 'POST', { id: id }, true, resp => {
             if (resp.code == 200) {
                 let result = resp.result
@@ -305,7 +309,6 @@ const createReportHandle = (id: number) => {
                 })
             }
         })
-
     }).catch(() => {
         ElMessage.info({
             message: '已取消操作',
@@ -367,9 +370,16 @@ const dataFormSubmit = () => {
 
 }
 
+/* webSocket 接收广播消息 */
+const { connect } = useWebSocket();
+
 onMounted(() => {
-    loadDataList()
-})
+    loadDataList();
+    connect(cookieUtil.getBackendUser()?.token || '', (message) => {
+        // 收到消息，刷新页面
+        loadDataList();
+    }, '/topic/checkup-report');
+});
 
 </script>
 
