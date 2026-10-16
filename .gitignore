@@ -48,5 +48,5 @@ Thumbs.db
 *.njsproj
 *.sln
 
-# Vim
-*.sw?
+# Claude Code
+.claude/

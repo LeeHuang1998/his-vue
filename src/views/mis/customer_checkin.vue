@@ -530,8 +530,6 @@ function conWS() {
         szhelp += '支持被动接收和主动请求两种方式\r\n'
         szhelp += '被动接收:当读卡器刷卡成功后会推送身份证信息到websocket，websocket直接显示即可\r\n'
         szhelp += '主动请求:支持网页端主动向服务器请求对应的消息。可查看<WS_ReadInfo><WS_GetASN><WS_GetBCardNo>这三个接口'
-
-        console.log(szhelp)
     }
 
     // onclose：当连接被关闭时触发
@@ -544,7 +542,6 @@ function conWS() {
         // 将获取的身份证字符串数据转换为 JSON 对象
         const jsonobject = JSON.parse(messageEvent.data)
         // Ret：服务器返回身份证信息结果，0表示成功，其他表示失败
-        console.log(jsonobject);
 
         if (jsonobject.Ret == 0) {
             // Cmd：服务器返回的命令编号，10001 表示被动读卡身份证信息（即读卡器刷卡成功后会推送身份证信息到 websocket，websocket 直接显示）
@@ -553,13 +550,11 @@ function conWS() {
                 console.log("读取身份证成功");
                 // 身份证信息
                 const userParam = JSON.parse(window.atob(jsonobject.UserParam))
-                console.log(userParam);
 
                 // 姓名（结尾包含空格，字符串总长度为15个字符，必须要去除结尾空格）
                 const name = hex2a(window.atob(userParam.CardInfo.Name)).trim();
                 // 性别
                 const sex = hex2a(window.atob(userParam.CardInfo.Sex)) == 1 ? '男' : '女';
-                console.log("性别：", hex2a(window.atob(userParam.CardInfo.Sex)));
                 // 身份证号
                 const pid = hex2a(window.atob(userParam.CardInfo.No));
                 // 生日（例如19980101）
@@ -576,9 +571,6 @@ function conWS() {
                 const validityPeriodEnd = hex2a(window.atob(userParam.CardInfo.ValidityPeriodEnd)).trim();
                 // 将截止有效期转换为 YYYY-MM-DD 格式，若为长期则直接设置为'长期'，若不为长期则转换为 YYYY-MM-DD 格式
                 const expiryEnd = validityPeriodEnd !== '长期' ? parseDateString(validityPeriodEnd, '-', true) : validityPeriodEnd;
-
-                console.log("所有解码后的信息：", name, sex, pid, birthday, image, expiryBegin, expiryEnd);
-
 
                 if (expiryEnd !== '长期') {
                     // 判断是否在有效期范围
@@ -629,7 +621,6 @@ function disconWS() {
 // 发送请求到接口查询是否有预约数据
 const hasAppointment = (identityJson: object) => {
     proxy.$http('/mis/appointment/hasAppointmentInToday', 'POST', identityJson, true, resp => {
-        console.log(resp);
 
         if (resp.code == 200) {
             const appointmentResult = resp.appointmentResult;
@@ -764,8 +755,6 @@ const continueCheckup = () => {
                 continueDialog.value.visible = true
 
                 let continueCheckupVO = resp.continueCheckupVO
-
-                console.log(continueCheckupVO);
 
                 continueDialog.value.name = continueCheckupVO.summaryInfoVO.name
                 continueDialog.value.sex = continueCheckupVO.summaryInfoVO.sex
@@ -947,6 +936,8 @@ const dataFormSubmit = () => {
 
             let checkVO = resp.checkinVO
 
+            console.log("签到信息：" + resp.checkinVO);
+
             if (!checkVO.checkinResult) {
                 ElNotification({
                     title: '通知消息',
@@ -958,7 +949,7 @@ const dataFormSubmit = () => {
 
             ElNotification({
                 title: '通知消息',
-                message: "签到成功，请前往【" + checkVO.place + "】进行体检",
+                message: "签到成功，请前往【" + checkVO.nextPlaceVO.place + "】进行体检",
                 type: 'success',
                 duration: 3000
             });
@@ -1013,12 +1004,6 @@ const guidanceHandle = (appointmentId: any) => {
             guidanceDialog.value.qrCodeBase64 = guidanceData.qrcodeBase64;
             // 导引单体检项目
             guidanceDialog.value.checkup = guidanceData.checkup
-
-            console.log("二维码 base64", guidanceData.qrcodeBase64);
-
-
-            console.log("检查项目", guidanceData.checkup);
-
         }
     })
 
